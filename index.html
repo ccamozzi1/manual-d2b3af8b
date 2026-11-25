@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Manual</title>
+<style>body{background:#06080b;color:#ddd;font:16px system-ui;display:grid;place-items:center;min-height:100vh;margin:0;text-align:center}</style></head>
+<body><p id="m">Abrindo…</p>
+<script>
+(async()=>{
+ const diz=t=>document.getElementById('m').textContent=t;
+ try{
+  const b64=location.hash.slice(1);
+  if(!/^[\w-]{43}$/.test(b64))return diz('Link incompleto. Peça o link inteiro a quem o enviou.');
+  const raw=Uint8Array.from(atob(b64.replace(/-/g,'+').replace(/_/g,'/')+'='),c=>c.charCodeAt(0));
+  const k=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);
+  const r=await fetch('manual.bin',{cache:'no-cache'});if(!r.ok)throw 0;
+  const d=new Uint8Array(await r.arrayBuffer());
+  const html=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:d.slice(0,12)},k,d.slice(12)));
+  document.open();document.write(html);document.close();
+  document.addEventListener('click',e=>{
+   const v=e.target.closest('.vcapa');
+   if(v){const f=document.createElement('iframe');f.className='vmega';f.allow='autoplay; fullscreen';f.allowFullscreen=true;
+    const[id,ch]=v.dataset.mega.split('#');f.src='https://mega.nz/embed/'+id+'#'+ch;v.replaceWith(f);return}
+   const a=e.target.closest('a[href^="#"]');
+   if(a){e.preventDefault();const x=document.getElementById(a.getAttribute('href').slice(1));x?x.scrollIntoView({behavior:'smooth'}):scrollTo(0,0)}
+  });
+ }catch(_){diz('Não foi possível abrir. Confira se o link está completo.')}
+})();
+</script></body></html>
